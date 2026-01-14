@@ -47,10 +47,10 @@ public class SellerDaoJDBC implements SellerDao {
 		//para por o comando sql
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName"
-					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id"
-					+ "WHERE seller.Id = ?");
+				    "SELECT seller.*, department.Name as DepName "
+				  + "FROM seller INNER JOIN department "
+				  + "ON seller.DepartmentId = department.Id "
+				  + "WHERE seller.Id = ?");
 			
 			//vai trocar o id do comando sql pelo o que nós escolhermos
 			st.setInt(1, id);
@@ -59,16 +59,8 @@ public class SellerDaoJDBC implements SellerDao {
 			rs = st.executeQuery();
 			
 			if (rs.next()) {
-				Department dep = new Department();
-				dep.setId(rs.getInt("DepartmentId"));
-				dep.setName(rs.getString("DepName"));
-				Seller obj = new Seller();
-				obj.setId(rs.getInt("Id"));
-				obj.setName(rs.getString("Name"));
-				obj.setEmail(rs.getString("Email"));
-				obj.setSalary(rs.getDouble("BaseSalary"));
-				obj.setBirthDate(rs.getDate("BirthDate"));
-				obj.setDepartment(dep);
+				Department dep = instatiateDepartment(rs);
+				Seller obj = instatiateSeller(rs, dep);
 				return obj;
 			}
 			return null;
@@ -83,10 +75,30 @@ public class SellerDaoJDBC implements SellerDao {
 		
 	}
 
+	private Seller instatiateSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller obj = new Seller();
+		obj.setId(rs.getInt("Id"));
+		obj.setName(rs.getString("Name"));
+		obj.setEmail(rs.getString("Email"));
+		obj.setSalary(rs.getDouble("BaseSalary"));
+		obj.setBirthDate(rs.getDate("BirthDate"));
+		obj.setDepartment(dep);
+		return obj;
+		
+	}
+
 	@Override
 	public List<Seller> findAll() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private Department instatiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setName(rs.getString("DepName"));
+		return dep;
+		
 	}
 
 }
